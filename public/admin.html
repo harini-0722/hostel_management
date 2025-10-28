@@ -222,33 +222,34 @@
                     </div>
                 </div>
 
-               <h2>➕ Add New Student</h2>
-  <form id="studentForm">
-    <input type="text" id="name" placeholder="Full Name" required />
-    <input type="text" id="course" placeholder="Course" required />
-    <input type="text" id="year" placeholder="Year (e.g. 3rd Year)" required />
-    <input type="email" id="email" placeholder="Email" required />
-    <input type="text" id="phone" placeholder="Phone" required />
-    <input type="date" id="joined" required />
-    <select id="feeStatus">
-      <option value="Paid">Paid</option>
-      <option value="Unpaid">Unpaid</option>
-    </select>
-    <select id="theme">
-      <option value="men-theme">Men Theme</option>
-      <option value="women-theme">Women Theme</option>
-    </select>
-    <select id="hostelType">
-      <option value="boys">Men's Hostel</option>
-      <option value="girls">Women's Hostel</option>
-    </select>
-    <input type="text" id="roomId" placeholder="Room ID (e.g. A-101)" />
-    <input type="text" id="floor" placeholder="Floor (e.g. 1st Floor)" />
-    <input type="text" id="block" placeholder="Block (e.g. A-Block)" />
-    <button type="submit">Save Student</button>
-  </form>
+              <h2>➕ Add New Student</h2>
+<form id="addStudentForm">
+  <input type="text" id="name" placeholder="Full Name" required />
+  <input type="text" id="course" placeholder="Course" required />
+  <input type="text" id="year" placeholder="Year (e.g. 3rd Year)" required />
+  <input type="email" id="email" placeholder="Email" required />
+  <input type="text" id="phone" placeholder="Phone" required />
+  <input type="date" id="joined" required />
+  <select id="feeStatus">
+    <option value="Paid">Paid</option>
+    <option value="Unpaid">Unpaid</option>
+  </select>
+  <select id="theme">
+    <option value="men-theme">Men Theme</option>
+    <option value="women-theme">Women Theme</option>
+  </select>
+  <select id="hostelType">
+    <option value="boys">Men's Hostel</option>
+    <option value="girls">Women's Hostel</option>
+  </select>
+  <input type="text" id="roomId" placeholder="Room ID (e.g. A-101)" />
+  <input type="text" id="floor" placeholder="Floor (e.g. 1st Floor)" />
+  <input type="text" id="block" placeholder="Block (e.g. A-Block)" />
+  <button type="submit">Save Student</button>
+</form>
 
-  <script src="addStudent.js"></script>
+<script src="addStudent.js"></script>
+
 
 
   </div>
@@ -575,27 +576,40 @@ document.getElementById("addStudentForm").addEventListener("submit", async (e) =
 
   const studentData = {
     name: document.getElementById("name").value,
-    email: document.getElementById("email").value,
     course: document.getElementById("course").value,
     year: document.getElementById("year").value,
+    email: document.getElementById("email").value,
     phone: document.getElementById("phone").value,
-    room_id: document.getElementById("room_id").value
+    joined: document.getElementById("joined").value,
+    feeStatus: document.getElementById("feeStatus").value,
+    theme: document.getElementById("theme").value,
+    hostelType: document.getElementById("hostelType").value,
+    roomId: document.getElementById("roomId").value,
+    floor: document.getElementById("floor").value,
+    block: document.getElementById("block").value,
   };
 
   try {
     const res = await fetch("https://hostel-management-v8lh.onrender.com/add-student", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(studentData)
+      body: JSON.stringify(studentData),
     });
 
     const result = await res.json();
-    alert(result.message || "Student added successfully!");
+
+    if (res.ok) {
+      alert("✅ Student added successfully!");
+      document.getElementById("addStudentForm").reset();
+    } else {
+      alert("❌ Failed: " + (result.error || result.message));
+    }
   } catch (err) {
     console.error("❌ Error adding student:", err);
-    alert("Failed to add student. Please check the console.");
+    alert("Failed to add student. Please check console.");
   }
 });
+
 
 
 
