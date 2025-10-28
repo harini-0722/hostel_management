@@ -96,6 +96,20 @@ app.get("/students", (req, res) => {
   });
 });
 
+// server.js or routes/hostelRoutes.js
+app.get("/api/hostel/:type", async (req, res) => {
+  const { type } = req.params; // "girls" or "boys"
+  const sql = "SELECT * FROM students WHERE hostel_type = ?";
+  db.query(sql, [type], (err, result) => {
+    if (err) {
+      console.error("❌ Error fetching hostel data:", err);
+      return res.status(500).json({ error: "Database error" });
+    }
+    res.json(result);
+  });
+});
+
+
 // ✅ Helper — Get local IP for testing
 const getLocalIP = () => {
   const interfaces = os.networkInterfaces();

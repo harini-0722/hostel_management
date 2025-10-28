@@ -611,7 +611,45 @@ document.getElementById("addStudentForm").addEventListener("submit", async (e) =
 });
 
 
+async function showRooms(type) {
+  showView('rooms-view');
+  document.getElementById('rooms-header').innerText =
+    type === 'girls' ? "Women's Hostel" : "Men's Hostel";
 
+  // Fetch data from backend
+  const res = await fetch(`/api/hostel/${type}`);
+  const students = await res.json();
+
+  // Calculate summary
+  const totalCapacity = students.length * 2; // Example logic
+  const currentOccupancy = students.length;
+  const availableBeds = totalCapacity - currentOccupancy;
+
+  document.getElementById('rooms-summary').innerHTML = `
+    <p>Capacity: <span class="text-women-theme">${totalCapacity}</span></p>
+    <p>Current Occupancy: <span class="text-orange-500">${currentOccupancy}</span></p>
+    <p>Available Beds: <span class="text-green-600">${availableBeds}</span></p>
+  `;
+
+  // Build room cards dynamically
+  const grid = document.getElementById('rooms-grid');
+  grid.innerHTML = ''; // Clear previous data
+
+  students.forEach(stu => {
+    const card = document.createElement('div');
+    card.className =
+      'bg-card-bg rounded-xl shadow-lift p-5 border-l-4 ' +
+      (stu.hostel_type === 'girls' ? 'border-women-theme' : 'border-men-theme');
+    card.innerHTML = `
+      <h3 class="font-bold text-lg">${stu.room_no}</h3>
+      <p class="text-gray-600">Block: ${stu.block}</p>
+      <p class="mt-2 text-sm">Student: <span class="font-medium">${stu.name}</span></p>
+      <p class="text-sm text-gray-500">${stu.course} - ${stu.year}</p>
+      <p class="text-sm text-gray-500">${stu.email}</p>
+    `;
+    grid.appendChild(card);
+  });
+}
 
 
 
