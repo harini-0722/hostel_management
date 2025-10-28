@@ -150,7 +150,7 @@
 
     <header class="fixed-bar bg-card-bg shadow-soft border-b-2 border-primary-blue/20 p-4 flex justify-between items-center">
         <a href="#" onclick="showView('dashboard-view')" class="text-xl md:text-2xl font-bold text-primary-blue hover:text-secondary-accent transition duration-300">
-            Lovable Dorms <span class="text-xs md:text-sm font-normal text-secondary-gray ml-1">| IIT Hostel Management</span>
+            Lovable Dorms <span class="text-xs md:text-sm font-normal text-secondary-gray ml-1">| Indian Institute of Technology</span>
         </a>
         <div class="flex items-center space-x-3 md:space-x-4">
             <button onclick="showView('complaints-view')" class="text-sm font-semibold text-complaint-theme hover:text-complaint-theme/80 hidden sm:inline-flex items-center space-x-1">
@@ -222,40 +222,31 @@
                     </div>
                 </div>
 
-              <h2>➕ Add New Student</h2>
-<form id="addStudentForm">
-  <input type="text" id="name" placeholder="Full Name" required />
-  <input type="text" id="course" placeholder="Course" required />
-  <input type="text" id="year" placeholder="Year (e.g. 3rd Year)" required />
-  <input type="email" id="email" placeholder="Email" required />
-  <input type="text" id="phone" placeholder="Phone" required />
-  <input type="date" id="joined" required />
-  <select id="feeStatus">
-    <option value="Paid">Paid</option>
-    <option value="Unpaid">Unpaid</option>
-  </select>
-  <select id="theme">
-    <option value="men-theme">Men Theme</option>
-    <option value="women-theme">Women Theme</option>
-  </select>
-  <select id="hostelType">
-    <option value="boys">Men's Hostel</option>
-    <option value="girls">Women's Hostel</option>
-  </select>
-  <input type="text" id="roomId" placeholder="Room ID (e.g. A-101)" />
-  <input type="text" id="floor" placeholder="Floor (e.g. 1st Floor)" />
-  <input type="text" id="block" placeholder="Block (e.g. A-Block)" />
-  <button type="submit">Save Student</button>
+                <button onclick="showAddStudentForm()" 
+class="bg-indigo-600 text-white px-5 py-3 rounded-lg shadow-lg hover:bg-indigo-700 transition">
+  ➕ Add New Student
+</button>
+
+<div id="add-student-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50">
+  <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-lg relative">
+    <button onclick="hideAddStudentForm()" class="absolute top-3 right-3 text-gray-500 text-2xl font-bold">&times;</button>
+    <h2 class="text-2xl font-bold mb-4 text-gray-800">Add New Student</h2>
+
+    <form id="studentForm">
+  <input type="text" id="name" name="name" placeholder="Full Name" required class="border p-2 w-full mb-3 rounded">
+  <input type="text" id="roll_no" name="roll_no" placeholder="Roll Number" required class="border p-2 w-full mb-3 rounded">
+  <input type="text" id="course" name="course" placeholder="Course" required class="border p-2 w-full mb-3 rounded">
+  <input type="text" id="year" name="year" placeholder="Year (e.g., 2nd Year)" required class="border p-2 w-full mb-3 rounded">
+  <input type="email" id="email" name="email" placeholder="Email" required class="border p-2 w-full mb-3 rounded">
+  <input type="text" id="room_no" name="room_no" placeholder="Room Number" required class="border p-2 w-full mb-3 rounded">
+
+  <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded w-full">Save Student</button>
 </form>
-
-
-
 
 
   </div>
 </div>
 
-<div id="rooms-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-6"></div>
 
 
                 <hr class="my-6 md:my-10 border-t border-text-muted"/>
@@ -564,7 +555,7 @@
     
     <footer class="fixed-bar bg-light-bg shadow-soft border-t-4 border-primary-blue/20 p-4 md:p-6 text-center text-sm text-secondary-gray">
         <div class="container mx-auto">
-            <p>&copy; 2024 IIT Hostel Management Demo. All rights reserved.</p>
+            <p>&copy; 2025 Indian Institute of Technology. All rights reserved.</p>
             <p class="mt-1 text-xs text-primary-blue">Contact: admin@iit-hostel.edu</p>
         </div>
     </footer>
@@ -572,123 +563,62 @@
     <script>
 
 
-document.getElementById("addStudentForm").addEventListener("submit", async (e) => {
+function showAddStudentForm() {
+  document.getElementById("add-student-modal").classList.remove("hidden");
+}
+
+function hideAddStudentForm() {
+  document.getElementById("add-student-modal").classList.add("hidden");
+}
+
+document.getElementById("studentForm").addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  const studentData = {
+  const formData = {
     name: document.getElementById("name").value,
+    roll_no: document.getElementById("roll_no").value,
     course: document.getElementById("course").value,
     year: document.getElementById("year").value,
     email: document.getElementById("email").value,
-    phone: document.getElementById("phone").value,
-    joined: document.getElementById("joined").value,
-    feeStatus: document.getElementById("feeStatus").value,
-    theme: document.getElementById("theme").value,
-    hostelType: document.getElementById("hostelType").value,
-    roomId: document.getElementById("roomId").value,
-    floor: document.getElementById("floor").value,
-    block: document.getElementById("block").value,
+    room_no: document.getElementById("room_no").value,
   };
 
   try {
-    const res = await fetch("https://hostel-management-v8lh.onrender.com/add-student", {
+    const response = await fetch("https://hostel-management-v8lh.onrender.com/add-student", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(studentData),
+      body: JSON.stringify(formData),
     });
 
-    const result = await res.json();
+    const result = await response.json();
+    alert(result.message);
 
-    if (res.ok) {
-      alert("✅ Student added successfully!");
-      document.getElementById("addStudentForm").reset();
-      // 👇 Refresh grid after saving
-      loadWomenStudents();
-    } else {
-      alert("❌ Failed: " + (result.error || result.message));
+    if (response.ok) {
+      hideAddStudentForm();
+      document.getElementById("studentForm").reset();
+      fetchStudentCounts(); // ✅ refresh count immediately
     }
   } catch (err) {
     console.error("❌ Error adding student:", err);
-    alert("Failed to add student. Please check console.");
+    alert("❌ Something went wrong while adding student!");
   }
 });
 
-
-
-async function showRooms(type) {
-  showView('rooms-view');
-  document.getElementById('rooms-header').innerText =
-    type === 'girls' ? "Women's Hostel" : "Men's Hostel";
-
-  // Fetch data from backend
-  const res = await fetch(`/api/hostel/${type}`);
-  const students = await res.json();
-
-  // Calculate summary
-  const totalCapacity = students.length * 2; // Example logic
-  const currentOccupancy = students.length;
-  const availableBeds = totalCapacity - currentOccupancy;
-
-  document.getElementById('rooms-summary').innerHTML = `
-    <p>Capacity: <span class="text-women-theme">${totalCapacity}</span></p>
-    <p>Current Occupancy: <span class="text-orange-500">${currentOccupancy}</span></p>
-    <p>Available Beds: <span class="text-green-600">${availableBeds}</span></p>
-  `;
-
-  // Build room cards dynamically
-  const grid = document.getElementById('rooms-grid');
-  grid.innerHTML = ''; // Clear previous data
-
-  students.forEach(stu => {
-    const card = document.createElement('div');
-    card.className =
-      'bg-card-bg rounded-xl shadow-lift p-5 border-l-4 ' +
-      (stu.hostel_type === 'girls' ? 'border-women-theme' : 'border-men-theme');
-    card.innerHTML = `
-      <h3 class="font-bold text-lg">${stu.room_no}</h3>
-      <p class="text-gray-600">Block: ${stu.block}</p>
-      <p class="mt-2 text-sm">Student: <span class="font-medium">${stu.name}</span></p>
-      <p class="text-sm text-gray-500">${stu.course} - ${stu.year}</p>
-      <p class="text-sm text-gray-500">${stu.email}</p>
-    `;
-    grid.appendChild(card);
-  });
-}
-
- async function loadWomenStudents() {
+async function fetchStudentCounts() {
   try {
-    const response = await fetch("https://hostel-management-v8lh.onrender.com/students");
+    const response = await fetch("https://hostel-management-v8lh.onrender.com/student-counts");
     const data = await response.json();
 
-    const womensStudents = data.filter(s => s.hostelType === "girls");
-
-    const grid = document.getElementById("rooms-grid");
-    grid.innerHTML = ""; // Clear old data
-
-    womensStudents.forEach(student => {
-      const card = document.createElement("div");
-      card.className =
-        "bg-white p-4 rounded-lg shadow-md border-l-4 border-pink-500 mb-4 transition hover:scale-[1.02]";
-      card.innerHTML = `
-        <h3 class="text-lg font-bold text-pink-600">${student.name}</h3>
-        <p><strong>Course:</strong> ${student.course}</p>
-        <p><strong>Year:</strong> ${student.year}</p>
-        <p><strong>Email:</strong> ${student.email}</p>
-        <p><strong>Phone:</strong> ${student.phone}</p>
-        <p><strong>Joined:</strong> ${student.joined}</p>
-        <p><strong>Room:</strong> ${student.roomId || "Not Assigned"}</p>
-        <p><strong>Fee Status:</strong> ${student.feeStatus}</p>
-      `;
-      grid.appendChild(card);
-    });
-
-    // update count
-    document.getElementById("womenCount").innerText = womensStudents.length;
-  } catch (err) {
-    console.error("❌ Error loading women hostel data:", err);
+    document.getElementById("womenCount").textContent = data.Women;
+    document.getElementById("menCount").textContent = data.Men;
+  } catch (error) {
+    console.error("❌ Failed to load student counts:", error);
   }
 }
 
+document.addEventListener("DOMContentLoaded", () => {
+  fetchStudentCounts();
+});
 
 
 
@@ -1167,8 +1097,6 @@ async function showRooms(type) {
         document.addEventListener('DOMContentLoaded', () => {
             showView('dashboard-view');
             fetchStudentCounts();
-            loadWomenStudents(); // 👈 refresh the grid after saving
-
         });
 
     </script>

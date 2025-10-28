@@ -57,58 +57,59 @@ app.post("/login", (req, res) => {
     res.json({ redirect: role === "admin" ? "admin.html" : "student.html" });
   });
 });
-// API: Add new student
+
+// 🔹 ADD STUDENT API
 app.post("/add-student", (req, res) => {
-  const {
-    name,
-    course,
-    year,
-    email,
-    phone,
-    joined,
-    feeStatus,
-    theme,
-    hostelType,
-    roomId,
-    floor,
-    block,
-  } = req.body;
+  const { name, roll_no, course, year, email, room_no } = req.body;
 
-  const sql = `INSERT INTO students 
-    (name, course, year, email, phone, joined, feeStatus, theme, hostelType, roomId, floor, block) 
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+  if (!name || !roll_no || !course || !year || !email || !room_no) {
+    return res.status(400).json({ message: "All fields are required" });
+  }
 
-  db.query(
-    sql,
-    [name, course, year, email, phone, joined, feeStatus, theme, hostelType, roomId, floor, block],
-    (err, result) => {
-      if (err) return res.status(500).json({ error: err.message });
-      res.json({ message: "Student added successfully!", id: result.insertId });
-    }
-  );
-});
+  const query = `
+    INSERT INTO students (name, roll_no, course, year, email, room_no)
+    VALUES (?, ?, ?, ?, ?, ?)
+  `;
 
-// API: Get all students
-app.get("/students", (req, res) => {
-  db.query("SELECT * FROM students", (err, results) => {
-    if (err) throw err;
-    res.json(results);
-  });
-});
-
-// server.js or routes/hostelRoutes.js
-app.get("/api/hostel/:type", async (req, res) => {
-  const { type } = req.params; // "girls" or "boys"
-  const sql = "SELECT * FROM students WHERE hostel_type = ?";
-  db.query(sql, [type], (err, result) => {
+  db.query(query, [name, roll_no, course, year, email, room_no], (err) => {
     if (err) {
-      console.error("❌ Error fetching hostel data:", err);
-      return res.status(500).json({ error: "Database error" });
+      console.error("❌ Error inserting student:", err);
+      return res.status(500).json({ message: "Database error" });
     }
-    res.json(result);
+
+    res.status(200).json({ message: "✅ Student added successfully!" });
   });
 });
 
+// 🔹 GET STUDENT COUNTS
+app.get("/student-counts", (req, res) => {
+  const query = `
+    SELECT 
+      CASE 
+        WHEN room_no LIKE 'W%' THEN 'Women'
+        WHEN room_no LIKE 'M%' THEN 'Men'
+        ELSE 'Unknown'
+      END AS hostel,
+      COUNT(*) AS count
+    FROM students
+    GROUP BY hostel;
+  `;
+
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error("❌ Error fetching student counts:", err);
+      return res.status(500).json({ message: "Database error" });
+    }
+
+    const data = { Women: 0, Men: 0 };
+    results.forEach((r) => {
+      if (r.hostel === "Women") data.Women = r.count;
+      else if (r.hostel === "Men") data.Men = r.count;
+    });
+
+    res.json(data);
+  });
+});
 
 // ✅ Helper — Get local IP for testing
 const getLocalIP = () => {
